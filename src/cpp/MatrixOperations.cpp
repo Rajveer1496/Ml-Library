@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cmath>
-#include "core_utils_matrix_MatrixOperations.h"
+#include "core_utils_MatrixOperations.h"
 
 class Matrix {
 private:
@@ -292,7 +292,7 @@ extern "C" {
 
 // matrix addition
 JNIEXPORT jdoubleArray JNICALL 
-Java_core_utils_matrix_MatrixOperations_addMatrices(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_addMatrices(JNIEnv* env, jobject, 
     jdoubleArray matA, jint rowsA, jint colsA, jdoubleArray matB, jint rowsB, jint colsB) {
     try {
         Matrix a = jArrayToMatrix(env, matA, rowsA, colsA);
@@ -308,7 +308,7 @@ Java_core_utils_matrix_MatrixOperations_addMatrices(JNIEnv* env, jobject,
 
 // matrix subtraction
 JNIEXPORT jdoubleArray JNICALL 
-Java_core_utils_matrix_MatrixOperations_subtractMatrices(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_subtractMatrices(JNIEnv* env, jobject, 
     jdoubleArray matA, jint rowsA, jint colsA, jdoubleArray matB, jint rowsB, jint colsB) {
     try {
         Matrix a = jArrayToMatrix(env, matA, rowsA, colsA);
@@ -324,7 +324,7 @@ Java_core_utils_matrix_MatrixOperations_subtractMatrices(JNIEnv* env, jobject,
 
 // matrix multiplication
 JNIEXPORT jdoubleArray JNICALL 
-Java_core_utils_matrix_MatrixOperations_multiplyMatrices(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_multiplyMatrices(JNIEnv* env, jobject, 
     jdoubleArray matA, jint rowsA, jint colsA, jdoubleArray matB, jint rowsB, jint colsB) {
     try {
         Matrix a = jArrayToMatrix(env, matA, rowsA, colsA);
@@ -340,7 +340,7 @@ Java_core_utils_matrix_MatrixOperations_multiplyMatrices(JNIEnv* env, jobject,
 
 // scalar multiplication
 JNIEXPORT jdoubleArray JNICALL 
-Java_core_utils_matrix_MatrixOperations_scalarMultiply(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_scalarMultiply(JNIEnv* env, jobject, 
     jdoubleArray matrix, jint rows, jint cols, jdouble scalar) {
     try {
         Matrix a = jArrayToMatrix(env, matrix, rows, cols);
@@ -355,7 +355,7 @@ Java_core_utils_matrix_MatrixOperations_scalarMultiply(JNIEnv* env, jobject,
 
 // matrix transpose
 JNIEXPORT jdoubleArray JNICALL 
-Java_core_utils_matrix_MatrixOperations_transpose(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_transpose(JNIEnv* env, jobject, 
     jdoubleArray matrix, jint rows, jint cols) {
     try {
         Matrix a = jArrayToMatrix(env, matrix, rows, cols);
@@ -370,7 +370,7 @@ Java_core_utils_matrix_MatrixOperations_transpose(JNIEnv* env, jobject,
 
 // matrix determinant
 JNIEXPORT jdouble JNICALL 
-Java_core_utils_matrix_MatrixOperations_determinant(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_determinant(JNIEnv* env, jobject, 
     jdoubleArray matrix, jint rows, jint cols) {
     try {
         Matrix a = jArrayToMatrix(env, matrix, rows, cols);
@@ -384,7 +384,7 @@ Java_core_utils_matrix_MatrixOperations_determinant(JNIEnv* env, jobject,
 
 // matrix inverse
 JNIEXPORT jdoubleArray JNICALL 
-Java_core_utils_matrix_MatrixOperations_inverse(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_inverse(JNIEnv* env, jobject, 
     jdoubleArray matrix, jint rows, jint cols) {
     try {
         Matrix a = jArrayToMatrix(env, matrix, rows, cols);
@@ -399,7 +399,7 @@ Java_core_utils_matrix_MatrixOperations_inverse(JNIEnv* env, jobject,
 
 // matrix trace
 JNIEXPORT jdouble JNICALL 
-Java_core_utils_matrix_MatrixOperations_trace(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_trace(JNIEnv* env, jobject, 
     jdoubleArray matrix, jint rows, jint cols) {
     try {
         Matrix a = jArrayToMatrix(env, matrix, rows, cols);
@@ -413,7 +413,7 @@ Java_core_utils_matrix_MatrixOperations_trace(JNIEnv* env, jobject,
 
 // matrix rank
 JNIEXPORT jint JNICALL 
-Java_core_utils_matrix_MatrixOperations_rank(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_rank(JNIEnv* env, jobject, 
     jdoubleArray matrix, jint rows, jint cols) {
     try {
         Matrix a = jArrayToMatrix(env, matrix, rows, cols);
@@ -427,7 +427,7 @@ Java_core_utils_matrix_MatrixOperations_rank(JNIEnv* env, jobject,
 
 // check if matrix is symmetric
 JNIEXPORT jboolean JNICALL 
-Java_core_utils_matrix_MatrixOperations_isSymmetric(JNIEnv* env, jobject, 
+Java_core_utils_MatrixOperations_isSymmetric(JNIEnv* env, jobject, 
     jdoubleArray matrix, jint rows, jint cols) {
     try {
         Matrix a = jArrayToMatrix(env, matrix, rows, cols);

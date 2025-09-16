@@ -1,10 +1,10 @@
 package core.algorithms.supervised.regression;
 
 public class LinearRegression {
-    double learning_rate;
-    int epochs;
-    double weights[];
-    double bias;
+    private double learning_rate;
+    private int epochs;
+    private double weights[];
+    private double bias;
 
     public LinearRegression(double learning_rate,int epochs,int n){
         this.learning_rate=learning_rate;

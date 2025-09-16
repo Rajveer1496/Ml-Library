@@ -1,4 +1,4 @@
-# JNI Help Guide
+~# JNI Help Guide
 
 JNI...................
 It is not as easy as it seems to be. I have wasted hours on this, but let me save yours.
@@ -67,8 +67,8 @@ mkdir -p build/classes
 javac \
 -d build/classes \
 -h src/cpp \
-src/java/core/utils/matrix/MatrixOperations.java \
-src/java/Main.java
+src/core/utils//MatrixOperations.java \
+src/core/Main.java
 ```
 
 **Step 4: Compile the cpp and build library**
