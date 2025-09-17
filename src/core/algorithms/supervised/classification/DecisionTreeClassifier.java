@@ -18,8 +18,12 @@ public class DecisionTreeClassifier {
         this.minsamplesplit = minsamplesplit;
     }
 
+    private DecisionTreeClassifier(Node root) {
+        this.root = root;
+    }
+
     // node
-    private class Node{
+    private static class Node{
         boolean isleaf;
         int fidx; //feature index : idx chosen for fitting
         double threshold;   //cutoff value for feature
@@ -204,5 +208,53 @@ public class DecisionTreeClassifier {
             arr[i]=list.get(i);
         }
         return arr;
+    }
+
+    public int getDepth() {
+        return getDepth(root);
+    }
+
+    private int getDepth(Node node) {
+        if (node == null) {
+            return 0;
+        }
+        if (node.isleaf) {
+            return 1;
+        }
+        return 1 + Math.max(getDepth(node.left), getDepth(node.right));
+    }
+
+    public String getTreeJson() {
+        return nodeToJson(root);
+    }
+
+    private String nodeToJson(Node node) {
+        if (node.isleaf) {
+            return String.format("{\"type\": \"leaf\", \"value\": %d}", node.classlabel);
+        } else {
+            String leftJson = nodeToJson(node.left);
+            String rightJson = nodeToJson(node.right);
+            return String.format("{\"type\": \"split\", \"feature_index\": %d, \"threshold\": %.4f, \"left\": %s, \"right\": %s}",
+                    node.fidx, node.threshold, leftJson, rightJson);
+        }
+    }
+
+    public static DecisionTreeClassifier fromJson(Map<String, Object> treeJson) {
+        Node root = nodeFromJson(treeJson);
+        return new DecisionTreeClassifier(root);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Node nodeFromJson(Map<String, Object> nodeJson) {
+        String type = (String) nodeJson.get("type");
+        if ("leaf".equals(type)) {
+            return new Node(((Double) nodeJson.get("value")).intValue());
+        } else {
+            int featureIndex = ((Double) nodeJson.get("feature_index")).intValue();
+            double threshold = (Double) nodeJson.get("threshold");
+            Node left = nodeFromJson((Map<String, Object>) nodeJson.get("left"));
+            Node right = nodeFromJson((Map<String, Object>) nodeJson.get("right"));
+            return new Node(featureIndex, threshold, left, right);
+        }
     }
 }

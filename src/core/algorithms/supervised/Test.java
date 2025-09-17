@@ -19,7 +19,7 @@ public class Test {
         };
 
         // 1. Linear Regression
-        LinearRegression lr = new LinearRegression();
+        LinearRegression lr = new LinearRegression(0.01, 1000, 1);
         lr.fit(X_reg, y_reg);
         double[] preds_lr = lr.predict_all(new double[][]{{1.5}, {5.5}, {9.5}});
         System.out.println("Linear Regression Predictions:");

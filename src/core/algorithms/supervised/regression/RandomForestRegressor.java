@@ -1,5 +1,6 @@
 package core.algorithms.supervised.regression;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RandomForestRegressor {
     private int numtrees;
@@ -14,6 +15,11 @@ public class RandomForestRegressor {
         this.minsamplesplit=minsamplesplit;
         this.trees=new ArrayList<>();
         this.rand=new Random();
+    }
+
+    private RandomForestRegressor(List<DecisionTreeRegressor> trees) {
+        this.trees = trees;
+        this.numtrees = trees.size();
     }
 
     public void fit ( double[][] X,double[] y){
@@ -54,5 +60,22 @@ public class RandomForestRegressor {
             predictions[i]=predict_row(X[i]);
         }
         return predictions;
+    }
+
+    public int getNumberOfTrees() {
+        return numtrees;
+    }
+
+    public String getForestJson() {
+        return "[" + trees.stream().map(DecisionTreeRegressor::getTreeJson).collect(Collectors.joining(",")) + "]";
+    }
+
+    @SuppressWarnings("unchecked")
+    public static RandomForestRegressor fromJson(List<Map<String, Object>> forestJson) {
+        List<DecisionTreeRegressor> trees = new ArrayList<>();
+        for (Map<String, Object> treeJson : forestJson) {
+            trees.add(DecisionTreeRegressor.fromJson(treeJson));
+        }
+        return new RandomForestRegressor(trees);
     }
 }

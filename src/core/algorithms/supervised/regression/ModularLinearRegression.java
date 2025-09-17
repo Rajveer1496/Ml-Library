@@ -25,7 +25,9 @@ public class ModularLinearRegression {
         this.random = new Random();
 
         // Initialize optimizer
-        optimizer.reset(numFeatures);
+        if (optimizer != null) {
+            optimizer.reset(numFeatures);
+        }
     }
 
     public double predictOne(double[] rowData) {
@@ -153,5 +155,13 @@ public class ModularLinearRegression {
 
     public double getBias() {
         return bias;
+    }
+
+    public void setWeights(double[] weights) {
+        this.weights = weights;
+    }
+
+    public void setBias(double bias) {
+        this.bias = bias;
     }
 }

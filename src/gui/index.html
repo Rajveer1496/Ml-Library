@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Model Trainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input[type="number"], input[type="text"], input[type="file"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 3px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results, #predictionResult {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+        }
+        .param-section {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            background-color: #fdfdfd;
+        }
+        .param-section h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        #predictionSection {
+            display: none; /* Initially hidden */
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ML Model Trainer Interface</h1>
+
+        <div class="form-group">
+            <label for="algorithmSelect">Select Algorithm:</label>
+            <select id="algorithmSelect">
+                <option value="">--Please choose an algorithm--</option>
+                <option value="linearRegression">Linear Regression</option>
+                <option value="decisionTreeRegressor">Decision Tree Regressor</option>
+                <option value="decisionTreeClassifier">Decision Tree Classifier</option>
+                <option value="randomForestRegressor">Random Forest Regressor</option>
+                <option value="randomForestClassifier">Random Forest Classifier</option>
+            </select>
+        </div>
+
+        <div id="linearRegressionParams" class="param-section" style="display: none;">
+            <h2>Linear Regression Parameters</h2>
+
+            <div class="form-group">
+                <label for="learningRate">Learning Rate:</label>
+                <input type="number" id="learningRate" value="0.01" step="0.001">
+            </div>
+
+            <div class="form-group">
+                <label for="epochs">Epochs:</label>
+                <input type="number" id="epochs" value="1000" step="100">
+            </div>
+
+            <div class="form-group">
+                <label for="costFunctionSelect">Cost Function:</label>
+                <select id="costFunctionSelect">
+                    <option value="">--Select Cost Function--</option>
+                    <option value="MeanSquaredError">Mean Squared Error</option>
+                    <option value="MeanAbsoluteError">Mean Absolute Error</option>
+                    <option value="HuberLoss">Huber Loss</option>
+                    <option value="LogCoshLoss">Log-Cosh Loss</option>
+                </select>
+            </div>
+            <div id="costFunctionParams" class="param-section" style="display: none;">
+                <h3>Cost Function Specific Parameters</h3>
+            </div>
+
+            <div class="form-group">
+                <label for="optimizerSelect">Optimizer:</label>
+                <select id="optimizerSelect">
+                    <option value="">--Select Optimizer--</option>
+                    <option value="BatchGradientDescent">Batch Gradient Descent</option>
+                    <option value="MiniBatchGradientDescent">Mini-Batch Gradient Descent</option>
+                    <option value="MomentumOptimizer">Momentum Optimizer</option>
+                    <option value="AdamOptimizer">Adam Optimizer</option>
+                    <option value="RMSPropOptimizer">RMSProp Optimizer</option>
+                    <option value="AdagradOptimizer">Adagrad Optimizer</option>
+                </select>
+            </div>
+            <div id="optimizerParams" class="param-section" style="display: none;">
+                <h3>Optimizer Specific Parameters</h3>
+            </div>
+        </div>
+
+        <div id="decisionTreeRegressorParams" class="param-section" style="display: none;">
+            <h2>Decision Tree Regressor Parameters</h2>
+            <div class="form-group">
+                <label for="dt_reg_max_depth">Max Depth:</label>
+                <input type="number" id="dt_reg_max_depth" value="5" step="1">
+            </div>
+            <div class="form-group">
+                <label for="dt_reg_min_samples_split">Min Samples Split:</label>
+                <input type="number" id="dt_reg_min_samples_split" value="2" step="1">
+            </div>
+        </div>
+
+        <div id="decisionTreeClassifierParams" class="param-section" style="display: none;">
+            <h2>Decision Tree Classifier Parameters</h2>
+            <div class="form-group">
+                <label for="dt_clf_max_depth">Max Depth:</label>
+                <input type="number" id="dt_clf_max_depth" value="5" step="1">
+            </div>
+            <div class="form-group">
+                <label for="dt_clf_min_samples_split">Min Samples Split:</label>
+                <input type="number" id="dt_clf_min_samples_split" value="2" step="1">
+            </div>
+        </div>
+
+        <div id="randomForestRegressorParams" class="param-section" style="display: none;">
+            <h2>Random Forest Regressor Parameters</h2>
+            <div class="form-group">
+                <label for="rf_reg_n_estimators">Number of Estimators:</label>
+                <input type="number" id="rf_reg_n_estimators" value="10" step="1">
+            </div>
+            <div class="form-group">
+                <label for="rf_reg_max_depth">Max Depth:</label>
+                <input type="number" id="rf_reg_max_depth" value="5" step="1">
+            </div>
+            <div class="form-group">
+                <label for="rf_reg_min_samples_split">Min Samples Split:</label>
+                <input type="number" id="rf_reg_min_samples_split" value="2" step="1">
+            </div>
+        </div>
+
+        <div id="randomForestClassifierParams" class="param-section" style="display: none;">
+            <h2>Random Forest Classifier Parameters</h2>
+            <div class="form-group">
+                <label for="rf_clf_n_estimators">Number of Estimators:</label>
+                <input type="number" id="rf_clf_n_estimators" value="10" step="1">
+            </div>
+            <div class="form-group">
+                <label for="rf_clf_max_depth">Max Depth:</label>
+                <input type="number" id="rf_clf_max_depth" value="5" step="1">
+            </div>
+            <div class="form-group">
+                <label for="rf_clf_min_samples_split">Min Samples Split:</label>
+                <input type="number" id="rf_clf_min_samples_split" value="2" step="1">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="dataFile">Upload Training Data (CSV):</label>
+            <input type="file" id="dataFile" accept=".csv">
+        </div>
+
+        <button id="trainButton">Train Model</button>
+
+        <h2>Results</h2>
+        <pre id="results">No results yet.</pre>
+
+        <div id="predictionSection">
+            <h2>Make a Prediction</h2>
+            <div class="form-group">
+                <label for="predictionData">Enter data for prediction (comma-separated values):</label>
+                <input type="text" id="predictionData" placeholder="e.g., 1.5, 2.3, ...">
+            </div>
+            <button id="predictButton">Predict</button>
+            <h3>Prediction Result</h3>
+            <pre id="predictionResult">No prediction yet.</pre>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@ package core.algorithms.supervised.regression;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
 
 public class DecisionTreeRegressor {
@@ -14,7 +15,7 @@ public class DecisionTreeRegressor {
     private Random rand;       // random generator for feature sampling
 
     public DecisionTreeRegressor(int maxdepth,int minsamplesplit){
-        this(maxdepth, minsamplesplit, -1, new Random()); // ADDED
+        this(maxdepth, minsamplesplit, -1, new Random());
     }
 
     public DecisionTreeRegressor(int maxdepth,int minsamplesplit,int maxFeatures,Random rand){
@@ -24,9 +25,13 @@ public class DecisionTreeRegressor {
         this.rand=rand;
     }
 
-    private class Node{
-        int featureidx;   
-        double threshold; 
+    private DecisionTreeRegressor(Node root) {
+        this.root = root;
+    }
+
+    private static class Node{
+        int featureidx;
+        double threshold;
         Node left;
         Node right;
         double value;
@@ -202,5 +207,52 @@ public class DecisionTreeRegressor {
         }
         return bestsplit;
     }
-    
+
+    public int getDepth() {
+        return getDepth(root);
+    }
+
+    private int getDepth(Node node) {
+        if (node == null) {
+            return 0;
+        }
+        if (node.isleaf) {
+            return 1;
+        }
+        return 1 + Math.max(getDepth(node.left), getDepth(node.right));
+    }
+
+    public String getTreeJson() {
+        return nodeToJson(root);
+    }
+
+    private String nodeToJson(Node node) {
+        if (node.isleaf) {
+            return String.format("{\"type\": \"leaf\", \"value\": %.4f}", node.value);
+        } else {
+            String leftJson = nodeToJson(node.left);
+            String rightJson = nodeToJson(node.right);
+            return String.format("{\"type\": \"split\", \"feature_index\": %d, \"threshold\": %.4f, \"left\": %s, \"right\": %s}",
+                    node.featureidx, node.threshold, leftJson, rightJson);
+        }
+    }
+
+    public static DecisionTreeRegressor fromJson(Map<String, Object> treeJson) {
+        Node root = nodeFromJson(treeJson);
+        return new DecisionTreeRegressor(root);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Node nodeFromJson(Map<String, Object> nodeJson) {
+        String type = (String) nodeJson.get("type");
+        if ("leaf".equals(type)) {
+            return new Node((Double) nodeJson.get("value"));
+        } else {
+            int featureIndex = ((Double) nodeJson.get("feature_index")).intValue();
+            double threshold = (Double) nodeJson.get("threshold");
+            Node left = nodeFromJson((Map<String, Object>) nodeJson.get("left"));
+            Node right = nodeFromJson((Map<String, Object>) nodeJson.get("right"));
+            return new Node(featureIndex, threshold, left, right);
+        }
+    }
 }

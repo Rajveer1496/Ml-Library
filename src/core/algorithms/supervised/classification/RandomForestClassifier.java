@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class RandomForestClassifier {
     private int numtrees;
@@ -21,6 +22,11 @@ public class RandomForestClassifier {
         this.minsamplesplit=minsamplesplit;
         this.trees=new ArrayList<>();
         this.rand=new Random();
+    }
+
+    private RandomForestClassifier(List<DecisionTreeClassifier> trees) {
+        this.trees = trees;
+        this.numtrees = trees.size();
     }
 
     public void fit ( double[][] X,int[] y){
@@ -75,5 +81,20 @@ public class RandomForestClassifier {
         return predictions;
     }
 
+    public int getNumberOfTrees() {
+        return numtrees;
+    }
 
+    public String getForestJson() {
+        return "[" + trees.stream().map(DecisionTreeClassifier::getTreeJson).collect(Collectors.joining(",")) + "]";
+    }
+
+    @SuppressWarnings("unchecked")
+    public static RandomForestClassifier fromJson(List<Map<String, Object>> forestJson) {
+        List<DecisionTreeClassifier> trees = new ArrayList<>();
+        for (Map<String, Object> treeJson : forestJson) {
+            trees.add(DecisionTreeClassifier.fromJson(treeJson));
+        }
+        return new RandomForestClassifier(trees);
+    }
 }
