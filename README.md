@@ -1,4 +1,4 @@
-# ML Model Trainer GUI
+# ML Library GUI Pipeline
 
 This project provides a graphical user interface (GUI) for training and testing various machine learning models.
 
