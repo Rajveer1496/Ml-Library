@@ -1,5 +1,22 @@
 package core.utils;
 
+// Use of Abstract classes
+abstract class DescriptiveStatistics {
+    public abstract double calculate(double[] data);
+}
+
+class Mean extends DescriptiveStatistics {
+    @Override
+    public double calculate(double[] data) {
+        double sum = 0;
+        for (double d : data) {
+            sum += d;
+        }
+        return sum / data.length;
+    }
+}
+
+
 public class Mathutils {
     //overloading use
     public double mean_cal(double[] nums){
@@ -19,7 +36,7 @@ public class Mathutils {
         }
         return sum/n;
     }
-    //  POWER 
+    //  POWER
     public double power(double base,int power){
         double ans=1.0;
         for(int i=0;i<power;i++){
@@ -89,5 +106,12 @@ public class Mathutils {
             arr[i]=nums[i]+nums[i-1];
         }
         return arr;
+    }
+}
+
+// Inheritance (Borrowing code from parent)
+class AdvancedMath extends Mathutils {
+    public double standardDeviation(double[] nums) {
+        return std_dev(nums);
     }
 }
