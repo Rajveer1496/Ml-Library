@@ -32,15 +32,16 @@ Polymorphism,Runtime Polymorphism (Method Overriding),In HuberLoss,https://githu
 Polymorphism,Runtime Polymorphism (Method Overriding),In LogCoshLoss,https://github.com/Rajveer1496/Ml-Library/blob/3357f28f3b484a895cd04bd081a7862632508415/src/core/algorithms/supervised/regression/costFunction/LogCoshLoss.java#L6-L27
 Polymorphism,Runtime Polymorphism (Method Overriding),In MeanAbsoluteError,https://github.com/Rajveer1496/Ml-Library/blob/3357f28f3b484a895cd04bd081a7862632508415/src/core/algorithms/supervised/regression/costFunction/MeanAbsoluteError.java#L6-L26
 Polymorphism,Runtime Polymorphism (Method Overriding),In MeanSquaredError,https://github.com/Rajveer1496/Ml-Library/blob/3357f28f3b484a895cd04bd081a7862632508415/src/core/algorithms/supervised/regression/costFunction/MeanSquaredError.java#L6-L25
+Polymorphism,Default Arguments,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/cpp/MatrixOperations.cpp#L16-L18
 Polymorphism,Runtime Polymorphism (Method Overriding),LinkTitle,#
+Polymorphism,Operator Overloading,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/cpp/MatrixOperations.cpp#L37-L74
 Abstraction,Interface,CostFunction Interface,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/interfaces/CostFunction.java#L3-L8
 Abstraction,Interface,Optimizer Interface,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/interfaces/Optimizer.java#L3-L8
-Abstraction,Abstract Class,LinkTitle,#
-Inheritance,Inheritance,LinkTitle,#
-Inheritance,Inheritance,LinkTitle,#
+Abstraction,Abstract Class,In MathUtils,https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/core/utils/Mathutils.java#L4-L17
+Inheritance,Inheritance,AdvancedMath,https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/core/utils/Mathutils.java#L113-L116
 Encapsulation,Setter - Getter (Friend Function Like),Getter in RandomForestRegressor,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/RandomForestRegressor.java#L65-L67
 Encapsulation,Setter - Getter (Friend Function Like),Setter Getter in MudularLinearRegression,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/ModularLinearRegression.java#L152-L166
 Encapsulation,Setter - Getter (Friend Function Like),Getter in LinearRegression,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/LinearRegression.java#L69-L75
 Encapsulation,Setter - Getter (Friend Function Like),Getter in MiniBatchGradientDescent,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/MiniBatchGradientDescent.java#L39-L41
 Encapsulation,Setter - Getter (Friend Function Like),Getter in RandomForestClassifier,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/classification/RandomForestClassifier.java#L84-L86
-Encapsulation,Setter - Getter (Friend Function Like),LinkTitle,#
+Encapsulation,Friend Function,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/cpp/MatrixOperations.cpp#L32-L34

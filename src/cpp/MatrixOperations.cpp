@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include "core_utils_MatrixOperations.h"
 
 class Matrix {
@@ -26,7 +27,7 @@ public:
     double& operator()(int i, int j) { return data[i][j]; }
     const double& operator()(int i, int j) const { return data[i][j]; }
     int getRows() const { return rows; }
-    int getCols() const { return cols; }
+    int getCols() const;
 
     // Friend function declarations
     friend Matrix operator*(double scalar, const Matrix& matrix);
@@ -205,7 +206,39 @@ public:
                 result.push_back(data[i][j]);
         return result;
     }
+    /**
+     * Converts the matrix to a C-style 2D array using malloc.
+     */
+    double** toCArray() const;
 };
+inline int Matrix::getCols() const {
+    return cols;
+}
+double** Matrix::toCArray() const {
+    // Allocate memory for the array of row pointers
+    double** c_array = (double**)malloc(rows * sizeof(double*));
+    if (c_array == nullptr) {
+        throw std::bad_alloc();
+    }
+
+    for (int i = 0; i < rows; ++i) {
+        // Allocate memory for each row
+        c_array[i] = (double*)malloc(cols * sizeof(double));
+        if (c_array[i] == nullptr) {
+            // Allocation failed, free previously allocated memory before throwing
+            for (int j = 0; j < i; ++j) {
+                free(c_array[j]);
+            }
+            free(c_array);
+            throw std::bad_alloc();
+        }
+        // Copy the data
+        for (int j = 0; j < cols; ++j) {
+            c_array[i][j] = data[i][j];
+        }
+    }
+    return c_array;
+}
 
 // Friend function implementations
 Matrix operator*(double scalar, const Matrix& matrix) {
@@ -213,20 +246,20 @@ Matrix operator*(double scalar, const Matrix& matrix) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Matrix& matrix) {
-    for (int i = 0; i < matrix.rows; i++) {
-        for (int j = 0; j < matrix.cols; j++)
-            os << matrix.data[i][j] << " ";
+    for (int i = 0; i < matrix.getRows(); i++) {
+        for (int j = 0; j < matrix.getCols(); j++)
+            os << matrix(i, j) << " ";
         os << std::endl;
     }
     return os;
 }
 
 Matrix elementWiseMultiply(const Matrix& a, const Matrix& b) {
-    if (a.rows != b.rows || a.cols != b.cols) throw std::invalid_argument("dimensions must match for element-wise multiplication");
-    Matrix result(a.rows, a.cols);
-    for (int i = 0; i < a.rows; i++)
-        for (int j = 0; j < a.cols; j++)
-            result.data[i][j] = a.data[i][j] * b.data[i][j];
+    if (a.getRows() != b.getRows() || a.getCols() != b.getCols()) throw std::invalid_argument("dimensions must match for element-wise multiplication");
+    Matrix result(a.getRows(), a.getCols());
+    for (int i = 0; i < a.getRows(); i++)
+        for (int j = 0; j < a.getCols(); j++)
+            result(i, j) = a(i, j) * b(i, j);
     return result;
 }
 
