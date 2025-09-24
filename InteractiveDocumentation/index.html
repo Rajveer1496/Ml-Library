@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OOP Concepts — Ml-Library</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+          min-height: 100vh;
+          padding: 40px 20px;
+          line-height: 1.6;
+        }
+
+        .container {
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+
+        .header {
+          text-align: center;
+          margin-bottom: 60px;
+          color: white;
+        }
+
+        .header h1 {
+          font-size: 3.5rem;
+          font-weight: 700;
+          margin-bottom: 20px;
+          text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .header p {
+          font-size: 1.2rem;
+          opacity: 0.9;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+
+
+        .loading {
+          display: none;
+          text-align: center;
+          color: #007bff;
+          font-weight: 600;
+          margin: 20px 0;
+        }
+
+        .loading i {
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .error {
+          display: none;
+          background: rgba(220, 53, 69, 0.1);
+          border: 1px solid #dc3545;
+          color: #dc3545;
+          padding: 20px;
+          border-radius: 10px;
+          margin: 20px 0;
+          line-height: 1.6;
+        }
+
+        .manual-upload {
+          display: none;
+          background: rgba(30, 30, 30, 0.95);
+          border-radius: 15px;
+          padding: 30px;
+          margin: 30px 0;
+          text-align: center;
+          border: 2px dashed rgba(100, 100, 100, 0.5);
+          transition: all 0.3s ease;
+        }
+
+        .manual-upload:hover {
+          border-color: rgba(150, 150, 150, 0.7);
+          background: rgba(40, 40, 40, 0.95);
+        }
+
+        .manual-upload input[type="file"] {
+          display: none;
+        }
+
+        .manual-upload label {
+          display: inline-block;
+          padding: 15px 30px;
+          background: linear-gradient(135deg, #28a745, #20c997);
+          color: white;
+          border-radius: 10px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          margin-bottom: 15px;
+        }
+
+        .manual-upload label:hover {
+          background: linear-gradient(135deg, #20c997, #17a2b8);
+          transform: translateY(-2px);
+        }
+
+        .manual-upload p {
+          color: #adb5bd;
+          margin-top: 10px;
+        }
+
+        .concept {
+          background: rgba(30, 30, 30, 0.95);
+          backdrop-filter: blur(10px);
+          margin-bottom: 24px;
+          border-radius: 20px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+          overflow: hidden;
+          transition: all 0.3s ease;
+          border: 1px solid rgba(64, 64, 64, 0.3);
+        }
+
+        .concept:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .concept > button {
+          width: 100%;
+          text-align: left;
+          padding: 24px 30px;
+          font-size: 1.3rem;
+          font-weight: 600;
+          border: none;
+          outline: none;
+          background: linear-gradient(135deg, #333333, #444444);
+          color: #f8f9fa;
+          cursor: pointer;
+          position: relative;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .concept > button:hover {
+          background: linear-gradient(135deg, #404040, #555555);
+        }
+
+        .concept > button::after {
+          content: '\f078';
+          font-family: 'Font Awesome 6 Free';
+          font-weight: 900;
+          transition: transform 0.3s ease;
+          margin-left: 15px;
+        }
+
+        .concept > button.active::after {
+          transform: rotate(180deg);
+        }
+
+        .subconcept {
+          background: rgba(40, 40, 40, 0.8);
+          margin: 0 20px 16px 20px;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 1px solid rgba(80, 80, 80, 0.5);
+          transition: all 0.3s ease;
+        }
+
+        .subconcept:hover {
+          background: rgba(50, 50, 50, 0.9);
+        }
+
+        .subconcept > button {
+          width: 100%;
+          text-align: left;
+          padding: 18px 24px;
+          font-size: 1.1rem;
+          font-weight: 500;
+          border: none;
+          outline: none;
+          background: linear-gradient(135deg, #505050, #606060);
+          color: #f8f9fa;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .subconcept > button:hover {
+          background: linear-gradient(135deg, #606060, #707070);
+        }
+
+        .subconcept > button::before {
+          content: '\f1c9';
+          font-family: 'Font Awesome 6 Free';
+          font-weight: 900;
+          margin-right: 12px;
+          opacity: 0.8;
+        }
+
+        .subconcept > button::after {
+          content: '\f054';
+          font-family: 'Font Awesome 6 Free';
+          font-weight: 900;
+          transition: transform 0.3s ease;
+          font-size: 0.9rem;
+        }
+
+        .subconcept > button.active::after {
+          transform: rotate(90deg);
+        }
+
+        .applications {
+          display: none;
+          padding: 20px 24px 24px;
+          background: rgba(20, 20, 20, 0.6);
+          animation: fadeIn 0.3s ease;
+        }
+
+        .applications.show {
+          display: block;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .applications a {
+          display: flex;
+          align-items: center;
+          padding: 16px 20px;
+          margin-bottom: 12px;
+          color: #e9ecef;
+          text-decoration: none;
+          background: linear-gradient(135deg, rgba(50,50,50,0.9), rgba(60,60,60,0.9));
+          border-radius: 12px;
+          border: 1px solid rgba(80, 80, 80, 0.6);
+          transition: all 0.3s ease;
+          font-weight: 500;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .applications a:hover {
+          background: linear-gradient(135deg, rgba(70,70,70,0.9), rgba(80,80,80,0.9));
+          transform: translateX(8px);
+          color: #ffffff;
+          box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+          border-color: rgba(120, 120, 120, 0.6);
+        }
+
+        .applications a::before {
+          content: '\f35d';
+          font-family: 'Font Awesome 6 Brands';
+          font-weight: 900;
+          margin-right: 15px;
+          font-size: 1.2rem;
+          color: #adb5bd;
+          transition: all 0.3s ease;
+        }
+
+        .applications a:hover::before {
+          color: #ffffff;
+          transform: scale(1.1);
+        }
+
+        .applications a::after {
+          content: '\f08e';
+          font-family: 'Font Awesome 6 Free';
+          font-weight: 900;
+          margin-left: auto;
+          opacity: 0.6;
+          transition: all 0.3s ease;
+          font-size: 0.9rem;
+        }
+
+        .applications a:hover::after {
+          opacity: 1;
+          transform: translateX(3px);
+        }
+
+        .main-applications {
+          display: none;
+          padding: 30px;
+          background: rgba(15, 15, 15, 0.3);
+          backdrop-filter: blur(5px);
+          border-radius: 0 0 20px 20px;
+          animation: slideDown 0.4s ease;
+        }
+
+        .main-applications.show {
+          display: block;
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .content-area {
+          min-height: 200px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          body {
+            padding: 20px 15px;
+          }
+
+          .header h1 {
+            font-size: 2.5rem;
+          }
+
+          .concept > button {
+            padding: 20px 24px;
+            font-size: 1.1rem;
+          }
+
+          .subconcept > button {
+            padding: 16px 20px;
+            font-size: 1rem;
+          }
+
+          .applications {
+            padding: 16px 20px 20px;
+          }
+
+          .applications a {
+            padding: 14px 16px;
+            font-size: 0.95rem;
+          }
+        }
+
+        /* Loading animation */
+        .concept {
+          animation: slideUp 0.6s ease forwards;
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        @keyframes slideUp {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>OOP Concepts</h1>
+        <p>Explore Object-Oriented Programming concepts implemented in the Ml-Library project</p>
+    </div>
+
+    <div class="loading" id="loading">
+        <i class="fas fa-spinner"></i> Loading concepts...
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="manual-upload" id="manualUpload">
+        <h4 style="color: #f8f9fa; margin-bottom: 20px;">
+            <i class="fas fa-upload"></i> Manual Upload
+        </h4>
+        <label for="csvFileManual">
+            <i class="fas fa-file-csv"></i> Choose CSV File
+        </label>
+        <input type="file" id="csvFileManual" accept=".csv" />
+        <p>Select your oop_concepts.csv file to load the data</p>
+    </div>
+
+    <div class="content-area" id="contentArea">
+        <!-- Dynamic content will be inserted here -->
+    </div>
+</div>
+
+<script>
+    let conceptsData = {};
+    const CSV_FILE_PATH = 'oop_concepts.csv'; // CSV file in same directory as HTML
+
+    // Auto-load CSV on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCSVFile();
+    });
+
+    async function loadCSVFile() {
+      try {
+        showLoading(true);
+        hideError();
+
+        // Try to fetch the CSV file
+        const response = await fetch(CSV_FILE_PATH);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const csvText = await response.text();
+
+        if (!csvText.trim()) {
+          throw new Error('CSV file is empty');
+        }
+
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          delimiter: ',',
+          complete: function(results) {
+            try {
+              if (results.errors.length > 0) {
+                console.warn('CSV parsing warnings:', results.errors);
+              }
+
+              processCSVData(results.data);
+              renderConcepts();
+              showLoading(false);
+            } catch (error) {
+              showError('Error processing CSV data: ' + error.message);
+              showLoading(false);
+              showManualUploadOption();
+            }
+          },
+          error: function(error) {
+            showError('Error parsing CSV file: ' + error.message);
+            showLoading(false);
+            showManualUploadOption();
+          }
+        });
+
+      } catch (error) {
+        console.error('Fetch error:', error);
+
+        // Provide helpful error message and fallback option
+        const errorMessage = `
+          <strong>Cannot load CSV automatically</strong><br>
+          This happens due to browser security restrictions when opening HTML files directly.<br><br>
+          <strong>Solutions:</strong><br>
+          1. Use the manual upload option below
+        `;
+
+        showError(errorMessage);
+        showLoading(false);
+        showManualUploadOption();
+      }
+    }
+
+    function processCSVData(data) {
+      conceptsData = {};
+
+      data.forEach(row => {
+        // Trim whitespace from all fields
+        const mainConcept = row.MainConcept?.trim();
+        const subConcept = row.SubConcept?.trim();
+        const linkTitle = row.LinkTitle?.trim();
+        const linkURL = row.LinkURL?.trim();
+
+        if (!mainConcept || !subConcept || !linkTitle || !linkURL) {
+          console.warn('Skipping row with missing data:', row);
+          return;
+        }
+
+        if (!conceptsData[mainConcept]) {
+          conceptsData[mainConcept] = {};
+        }
+
+        if (!conceptsData[mainConcept][subConcept]) {
+          conceptsData[mainConcept][subConcept] = [];
+        }
+
+        conceptsData[mainConcept][subConcept].push({
+          title: linkTitle,
+          url: linkURL
+        });
+      });
+
+      if (Object.keys(conceptsData).length === 0) {
+        throw new Error('No valid data found in CSV. Please check the format.');
+      }
+    }
+
+    function renderConcepts() {
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = '';
+
+      let delay = 0.1;
+      Object.keys(conceptsData).forEach(mainConcept => {
+        const conceptElement = createConceptElement(mainConcept, conceptsData[mainConcept]);
+        conceptElement.style.animationDelay = `${delay}s`;
+        contentArea.appendChild(conceptElement);
+        delay += 0.1;
+      });
+    }
+
+    function createConceptElement(mainConcept, subConcepts) {
+      const conceptDiv = document.createElement('div');
+      conceptDiv.className = 'concept';
+
+      const mainButton = document.createElement('button');
+      mainButton.innerHTML = `<span>${mainConcept}</span>`;
+      mainButton.onclick = function() { toggleMenu(this); };
+
+      const mainApplicationsDiv = document.createElement('div');
+      mainApplicationsDiv.className = 'main-applications';
+
+      Object.keys(subConcepts).forEach(subConcept => {
+        const subConceptDiv = createSubConceptElement(subConcept, subConcepts[subConcept]);
+        mainApplicationsDiv.appendChild(subConceptDiv);
+      });
+
+      conceptDiv.appendChild(mainButton);
+      conceptDiv.appendChild(mainApplicationsDiv);
+
+      return conceptDiv;
+    }
+
+    function createSubConceptElement(subConcept, applications) {
+      const subConceptDiv = document.createElement('div');
+      subConceptDiv.className = 'subconcept';
+
+      const subButton = document.createElement('button');
+      subButton.textContent = subConcept;
+      subButton.onclick = function() { toggleMenu(this); };
+
+      const applicationsDiv = document.createElement('div');
+      applicationsDiv.className = 'applications';
+
+      applications.forEach(app => {
+        const link = document.createElement('a');
+        link.href = app.url;
+        link.target = '_blank';
+        link.textContent = app.title;
+        applicationsDiv.appendChild(link);
+      });
+
+      subConceptDiv.appendChild(subButton);
+      subConceptDiv.appendChild(applicationsDiv);
+
+      return subConceptDiv;
+    }
+
+    function toggleMenu(button) {
+      const menu = button.nextElementSibling;
+      const isMainConcept = button.parentElement.classList.contains('concept');
+
+      button.classList.toggle('active');
+
+      if (menu.style.display === "block" || menu.classList.contains('show')) {
+        menu.style.display = "none";
+        menu.classList.remove('show');
+      } else {
+        menu.style.display = "block";
+        menu.classList.add('show');
+      }
+
+      if (isMainConcept && menu.style.display === "block") {
+        setTimeout(() => {
+          menu.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          });
+        }, 100);
+      }
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('error');
+      errorDiv.innerHTML = message;
+      errorDiv.style.display = 'block';
+    }
+
+    function showManualUploadOption() {
+      const manualUpload = document.getElementById('manualUpload');
+      manualUpload.style.display = 'block';
+
+      // Add file upload handler
+      document.getElementById('csvFileManual').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.name.endsWith('.csv')) {
+          showError('Please select a CSV file.');
+          return;
+        }
+
+        showLoading(true);
+        hideError();
+        manualUpload.style.display = 'none';
+
+        Papa.parse(file, {
+          header: true,
+          skipEmptyLines: true,
+          delimiter: ',',
+          complete: function(results) {
+            try {
+              processCSVData(results.data);
+              renderConcepts();
+              showLoading(false);
+            } catch (error) {
+              showError('Error processing CSV: ' + error.message);
+              showLoading(false);
+            }
+          },
+          error: function(error) {
+            showError('Error reading CSV file: ' + error.message);
+            showLoading(false);
+          }
+        });
+      });
+    }
+
+    function hideError() {
+      document.getElementById('error').style.display = 'none';
+    }
+
+    function showNoDataMessage() {
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = `
+        <div style="text-align: center; color: #adb5bd; padding: 60px 20px;">
+          <i class="fas fa-exclamation-triangle" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.6; color: #ffc107;"></i>
+          <h3 style="margin-bottom: 15px; color: #f8f9fa;">CSV File Not Found</h3>
+          <p>Could not load the CSV file from: <code style="background: rgba(50,50,50,0.8); padding: 2px 8px; border-radius: 4px;">${CSV_FILE_PATH}</code></p>
+          <p style="margin-top: 10px; font-size: 0.9rem;">Make sure the CSV file exists at the specified path.</p>
+        </div>
+      `;
+    }
+</script>
+</body>
+</html>
