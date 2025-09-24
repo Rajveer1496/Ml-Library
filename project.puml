@@ -1,0 +1,49 @@
+@startuml
+package core {
+  package algorithms {
+    package supervised {
+      package classification {
+        class DecisionTreeClassifier
+        class RandomForestClassifier
+      }
+      package regression {
+        package interfaces {
+          interface CostFunction
+          interface Optimizer
+        }
+
+        package optimizer {
+          class AdagradOptimizer
+          class AdamOptimizer
+          class BatchGradientDescent
+          class MiniBatchGradientDescent
+          class MomentumOptimizer
+          class RMSPropOptimizer
+        }
+        package costFunction{
+          class HuberLoss
+          class LogCoshLoss
+          class MeanAbsoluteError
+          class MeanSquaredError
+        }
+        class InteractiveTest
+        class DecisionTreeRegressor
+        class LinearRegression
+        class ModularLinearRegression
+        class RandomForestRegressor
+      }
+    }
+    class Test
+  }
+
+
+  package utils {
+    class MathUtils
+    class MatrixOperations
+    class Tensor
+  }
+}
+package cpp {
+  class MatrixOperations
+}
+@enduml
