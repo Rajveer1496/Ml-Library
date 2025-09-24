@@ -11,16 +11,53 @@ class Matrix {
 private:
     std::vector<std::vector<double>> data;
     int rows, cols;
+    mutable double** c_array_cache; // Cache for C-style array to manage memory
 
 public:
     // constructors
-    Matrix(int r, int c, double defaultValue = 0.0) : rows(r), cols(c) {
+    Matrix(int r, int c, double defaultValue = 0.0) : rows(r), cols(c), c_array_cache(nullptr) {
         data.resize(rows, std::vector<double>(cols, defaultValue));
     }
 
-    Matrix(const std::vector<std::vector<double>>& mat = {}) : data(mat) {
+    Matrix(const std::vector<std::vector<double>>& mat = {}) : data(mat), c_array_cache(nullptr) {
         rows = mat.size();
         cols = rows > 0 ? mat[0].size() : 0;
+    }
+
+    // Copy constructor
+    Matrix(const Matrix& other) : data(other.data), rows(other.rows), cols(other.cols), c_array_cache(nullptr) {
+        // Note: We don't copy the c_array_cache, each object manages its own
+    }
+
+    // Assignment operator
+    Matrix& operator=(const Matrix& other) {
+        if (this != &other) {
+            // Clean up existing C array cache
+            freeCArrayCache();
+
+            // Copy data
+            data = other.data;
+            rows = other.rows;
+            cols = other.cols;
+            c_array_cache = nullptr; // Don't copy the cache
+        }
+        return *this;
+    }
+
+    // Destructor - automatically called when object goes out of scope
+    ~Matrix() {
+        freeCArrayCache();
+    }
+
+    // Helper method to free C array cache
+    void freeCArrayCache() const {
+        if (c_array_cache != nullptr) {
+            for (int i = 0; i < rows; ++i) {
+                free(c_array_cache[i]);
+            }
+            free(c_array_cache);
+            c_array_cache = nullptr;
+        }
     }
 
     // accessors
@@ -206,38 +243,54 @@ public:
                 result.push_back(data[i][j]);
         return result;
     }
+
     /**
      * Converts the matrix to a C-style 2D array using malloc.
+     * Now with proper memory management through caching.
      */
     double** toCArray() const;
+
+    /**
+     * Manually free the C-style array cache if needed
+     * (though destructor will handle this automatically)
+     */
+    void clearCArrayCache() const {
+        freeCArrayCache();
+    }
 };
+
 inline int Matrix::getCols() const {
     return cols;
 }
+
 double** Matrix::toCArray() const {
+    // If we already have a cached C array, free it first
+    freeCArrayCache();
+
     // Allocate memory for the array of row pointers
-    double** c_array = (double**)malloc(rows * sizeof(double*));
-    if (c_array == nullptr) {
+    c_array_cache = (double**)malloc(rows * sizeof(double*));
+    if (c_array_cache == nullptr) {
         throw std::bad_alloc();
     }
 
     for (int i = 0; i < rows; ++i) {
         // Allocate memory for each row
-        c_array[i] = (double*)malloc(cols * sizeof(double));
-        if (c_array[i] == nullptr) {
+        c_array_cache[i] = (double*)malloc(cols * sizeof(double));
+        if (c_array_cache[i] == nullptr) {
             // Allocation failed, free previously allocated memory before throwing
             for (int j = 0; j < i; ++j) {
-                free(c_array[j]);
+                free(c_array_cache[j]);
             }
-            free(c_array);
+            free(c_array_cache);
+            c_array_cache = nullptr;
             throw std::bad_alloc();
         }
         // Copy the data
         for (int j = 0; j < cols; ++j) {
-            c_array[i][j] = data[i][j];
+            c_array_cache[i][j] = data[i][j];
         }
     }
-    return c_array;
+    return c_array_cache;
 }
 
 // Friend function implementations
