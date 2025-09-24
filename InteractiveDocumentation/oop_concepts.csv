@@ -5,10 +5,9 @@ Constructors - Distructors,Default Constructors,In AdamOptimizer,https://github.
 Constructors - Distructors,Default Constructors,In MiniBatchGradientDescent,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/MiniBatchGradientDescent.java#L12-L14
 Constructors - Distructors,Default Constructors,In MomentumOptimizer,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/MomentumOptimizer.java#L15-L18
 Constructors - Distructors,Default Constructors,In RMSPropOptimizer,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/RMSPropOptimizer.java#L16-L18
-Constructors - Distructors,Destructors,NOT ADDED YET,#
+Constructors - Distructors,Destructors,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/ea6794af0ba45122dd84149a8584e6d9bc809a29/src/cpp/MatrixOperations.cpp#L48-L50
 Constructors - Distructors,Copy Constructor,To create a new RandomForestRegressor instance from an existing collection of trees,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/RandomForestRegressor.java#L20-L23
 Constructors - Distructors,Copy Constructor,To create a new RandomForestClassifier instance from an existing collection of trees,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/classification/RandomForestClassifier.java#L27-L30
-Constructors - Distructors,Copy Constructor,NOT ADDED YET,#
 Constructors - Distructors,Constructor Overloading,In RandomForestRegressor,https://github.com/Rajveer1496/Ml-Library/blob/778fe6ce11e71cd322db6bb3e73ceb6dea116ede/src/core/algorithms/supervised/regression/RandomForestRegressor.java#L12-L23
 Constructors - Distructors,Constructor Overloading,In DecisionTreeRegressor,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/DecisionTreeRegressor.java#L17-L30
 Constructors - Distructors,Constructor Overloading,In DecisionTreeClassifier,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/classification/DecisionTreeClassifier.java#L16-L23
@@ -19,7 +18,6 @@ Constructors - Distructors,Constructor Overloading,In MiniBatchGradientDescent,h
 Constructors - Distructors,Constructor Overloading,In MomentumOptimizer,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/MomentumOptimizer.java#L10-L18
 Constructors - Distructors,Constructor Overloading,In RMSPropOptimizer,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/RMSPropOptimizer.java#L10-L18
 Constructors - Distructors,Constructor Overloading,In HuberLoss,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/costFunction/HuberLoss.java#L8-L14
-Constructors - Distructors,Constructor Overloading,LinkTitle,#
 Polymorphism,Compile-time Polymorphism (Method Overloading),MathUtils mean_calc(),https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/utils/Mathutils.java#L5-L21
 Polymorphism,Compile-time Polymorphism (Method Overloading),DecisionTreeRegressor getDepth,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/DecisionTreeRegressor.java#L211-L223
 Polymorphism,Runtime Polymorphism (Method Overriding),In AdagradOptimizer,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/AdagradOptimizer.java#L19-L46
@@ -33,7 +31,6 @@ Polymorphism,Runtime Polymorphism (Method Overriding),In LogCoshLoss,https://git
 Polymorphism,Runtime Polymorphism (Method Overriding),In MeanAbsoluteError,https://github.com/Rajveer1496/Ml-Library/blob/3357f28f3b484a895cd04bd081a7862632508415/src/core/algorithms/supervised/regression/costFunction/MeanAbsoluteError.java#L6-L26
 Polymorphism,Runtime Polymorphism (Method Overriding),In MeanSquaredError,https://github.com/Rajveer1496/Ml-Library/blob/3357f28f3b484a895cd04bd081a7862632508415/src/core/algorithms/supervised/regression/costFunction/MeanSquaredError.java#L6-L25
 Polymorphism,Default Arguments,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/cpp/MatrixOperations.cpp#L16-L18
-Polymorphism,Runtime Polymorphism (Method Overriding),LinkTitle,#
 Polymorphism,Operator Overloading,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/cpp/MatrixOperations.cpp#L37-L74
 Abstraction,Interface,CostFunction Interface,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/interfaces/CostFunction.java#L3-L8
 Abstraction,Interface,Optimizer Interface,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/interfaces/Optimizer.java#L3-L8
@@ -45,3 +42,5 @@ Encapsulation,Setter - Getter (Friend Function Like),Getter in LinearRegression,
 Encapsulation,Setter - Getter (Friend Function Like),Getter in MiniBatchGradientDescent,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/regression/optimizer/MiniBatchGradientDescent.java#L39-L41
 Encapsulation,Setter - Getter (Friend Function Like),Getter in RandomForestClassifier,https://github.com/Rajveer1496/Ml-Library/blob/a6eab79d51337e924598c2138476e671ef2f172e/src/core/algorithms/supervised/classification/RandomForestClassifier.java#L84-L86
 Encapsulation,Friend Function,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/19bee2004329062f1481c8f54b8f5e5a50987b06/src/cpp/MatrixOperations.cpp#L32-L34
+Dynamic Memory Allocation,Using Malloc,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/7e2cd01bbba352e63642b34ac838d26b15834cdc/src/cpp/MatrixOperations.cpp#L217-L241
+Inline Function,InlineFunction,In MatrixOperations (CPP),https://github.com/Rajveer1496/Ml-Library/blob/7e2cd01bbba352e63642b34ac838d26b15834cdc/src/cpp/MatrixOperations.cpp#L214-L216
