@@ -1,460 +1,186 @@
-#include <jni.h>
 #include <iostream>
-#include <vector>
-#include <stdexcept>
-#include <algorithm>
-#include <cmath>
 #include <cstdlib>
-#include "core_utils_MatrixOperations.h"
+#include <jni.h>
+#include "core_utils_Matrix.h"
+
+using namespace std;
 
 class Matrix {
-private:
-    std::vector<std::vector<double>> data;
     int rows, cols;
-    mutable double** c_array_cache; // Cache for C-style array to manage memory
+    double** data;
 
 public:
-    // constructors
-    Matrix(int r, int c, double defaultValue = 0.0) : rows(r), cols(c), c_array_cache(nullptr) {
-        data.resize(rows, std::vector<double>(cols, defaultValue));
-    }
+    Matrix() : rows(0), cols(0), data(nullptr) {}
 
-    Matrix(const std::vector<std::vector<double>>& mat = {}) : data(mat), c_array_cache(nullptr) {
-        rows = mat.size();
-        cols = rows > 0 ? mat[0].size() : 0;
-    }
-
-    // Copy constructor
-    Matrix(const Matrix& other) : data(other.data), rows(other.rows), cols(other.cols), c_array_cache(nullptr) {
-        // Note: We don't copy the c_array_cache, each object manages its own
-    }
-
-    // Assignment operator
-    Matrix& operator=(const Matrix& other) {
-        if (this != &other) {
-            // Clean up existing C array cache
-            freeCArrayCache();
-
-            // Copy data
-            data = other.data;
-            rows = other.rows;
-            cols = other.cols;
-            c_array_cache = nullptr; // Don't copy the cache
+    Matrix(int r, int c) : rows(r), cols(c) {
+        if (r <= 0 || c <= 0)
+            throw "row or column <= 0\ndynamic memory allocation failed";
+        data = (double**)malloc(rows * sizeof(double*));
+        for (int i = 0; i < rows; i++) {
+            data[i] = (double*)calloc(cols, sizeof(double));
         }
-        return *this;
     }
 
-    // Destructor - automatically called when object goes out of scope
+    Matrix(const Matrix& o) : rows(o.rows), cols(o.cols) {
+        if (rows <= 0 || cols <= 0)
+            throw "row or col <= 0\ndynamic memory allocation failed";
+        data = (double**)malloc(rows * sizeof(double*));
+        for (int i = 0; i < rows; i++) {
+            data[i] = (double*)malloc(cols * sizeof(double));
+            for (int j = 0; j < cols; j++) data[i][j] = o.data[i][j];
+        }
+    }
+
     ~Matrix() {
-        freeCArrayCache();
-    }
-
-    // Helper method to free C array cache
-    void freeCArrayCache() const {
-        if (c_array_cache != nullptr) {
-            for (int i = 0; i < rows; ++i) {
-                free(c_array_cache[i]);
-            }
-            free(c_array_cache);
-            c_array_cache = nullptr;
+        if (data) {
+            for (int i = 0; i < rows; i++) free(data[i]);
+            free(data);
         }
     }
 
-    // accessors
-    double& operator()(int i, int j) { return data[i][j]; }
-    const double& operator()(int i, int j) const { return data[i][j]; }
-    int getRows() const { return rows; }
-    int getCols() const;
+    int r() const { return rows; }
+    int c() const { return cols; }
 
-    // Friend function declarations
-    friend Matrix operator*(double scalar, const Matrix& matrix);
-    friend std::ostream& operator<<(std::ostream& os, const Matrix& matrix);
-    friend Matrix elementWiseMultiply(const Matrix& a, const Matrix& b);
+    double& at(int i, int j) {
+        if (i < 0 || i >= rows || j < 0 || j >= cols)
+            throw "i < 0 or i >= rows or j < 0 or j >= cols\ngetter failed";
+        return data[i][j];
+    }
 
-    // matrix addition
-    Matrix operator+(const Matrix& other) const {
-        if (rows != other.rows || cols != other.cols) throw std::invalid_argument("dimensions must match for addition");
-        Matrix result(rows, cols);
+    double at(int i, int j) const {
+        if (i < 0 || i >= rows || j < 0 || j >= cols)
+            throw "i < 0 or i >= rows or j < 0 or j >= cols\ngetter failed";
+        return data[i][j];
+    }
+
+    Matrix operator+(const Matrix& b) const {
+        if (rows != b.rows || cols != b.cols)
+            throw "rows(A) != rows(B) or cols(A) != cols(B)\naddition operator failed";
+        Matrix r(rows, cols);
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
-                result(i, j) = data[i][j] + other(i, j);
-        return result;
+                r.data[i][j] = data[i][j] + b.data[i][j];
+        return r;
     }
 
-    // matrix subtraction
-    Matrix operator-(const Matrix& other) const {
-        if (rows != other.rows || cols != other.cols) throw std::invalid_argument("dimensions must match for subtraction");
-        Matrix result(rows, cols);
+    Matrix operator-(const Matrix& b) const {
+        if (rows != b.rows || cols != b.cols)
+            throw "rows(A) != rows(B) or cols(A) != cols(B)\nsubtraction operator failed";
+        Matrix r(rows, cols);
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
-                result(i, j) = data[i][j] - other(i, j);
+                r.data[i][j] = data[i][j] - b.data[i][j];
+        return r;
+    }
+
+    Matrix operator*(const Matrix& b) const {
+        int r1 = rows, c1 = cols, r2 = b.rows, c2 = b.cols;
+        if (c1 != r2) throw "cols(A) != rows(B)\nvector multiplication failed";
+        Matrix result(r1, c2);
+        for (int i = 0; i < r1; i++)
+            for (int j = 0; j < c2; j++)
+                for (int k = 0; k < c1; k++)
+                    result.data[i][j] += data[i][k] * b.data[k][j];
         return result;
     }
 
-    // matrix multiplication
-    Matrix operator*(const Matrix& other) const {
-        if (cols != other.rows) throw std::invalid_argument("invalid dimensions for multiplication");
-        Matrix result(rows, other.cols);
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < other.cols; j++)
-                for (int k = 0; k < cols; k++)
-                    result(i, j) += data[i][k] * other(k, j);
-        return result;
-    }
-
-    // scalar multiplication
-    Matrix operator*(double scalar) const {
-        Matrix result(rows, cols);
+    Matrix operator*(double s) const {
+        Matrix r(rows, cols);
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
-                result(i, j) = data[i][j] * scalar;
-        return result;
+                r.data[i][j] = data[i][j] * s;
+        return r;
     }
 
-    // matrix transpose
     Matrix transpose() const {
-        Matrix result(cols, rows);
+        Matrix r(cols, rows);
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
-                result(j, i) = data[i][j];
-        return result;
-    }
-
-    // determinant calculation using lu decomposition
-    double determinant() const {
-        if (rows != cols) throw std::invalid_argument("determinant only for square matrices");
-        if (rows == 1) return data[0][0];
-        if (rows == 2) return data[0][0] * data[1][1] - data[0][1] * data[1][0];
-
-        Matrix temp = *this;
-        double det = 1.0;
-
-        for (int i = 0; i < rows; i++) {
-            int pivot = i;
-            for (int j = i + 1; j < rows; j++)
-                if (std::abs(temp(j, i)) > std::abs(temp(pivot, i))) pivot = j;
-
-            if (std::abs(temp(pivot, i)) < 1e-10) return 0.0;
-
-            if (pivot != i) {
-                std::swap(temp.data[i], temp.data[pivot]);
-                det *= -1;
-            }
-
-            det *= temp(i, i);
-
-            for (int j = i + 1; j < rows; j++) {
-                double factor = temp(j, i) / temp(i, i);
-                for (int k = i; k < cols; k++)
-                    temp(j, k) -= factor * temp(i, k);
-            }
-        }
-        return det;
-    }
-
-    // matrix inverse using gauss-jordan elimination
-    Matrix inverse() const {
-        if (rows != cols) throw std::invalid_argument("inverse only for square matrices");
-        double det = determinant();
-        if (std::abs(det) < 1e-10) throw std::invalid_argument("matrix is singular");
-
-        Matrix augmented(rows, 2 * cols);
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) {
-                augmented(i, j) = data[i][j];
-                augmented(i, j + cols) = (i == j) ? 1.0 : 0.0;
-            }
-
-        for (int i = 0; i < rows; i++) {
-            int pivot = i;
-            for (int j = i + 1; j < rows; j++)
-                if (std::abs(augmented(j, i)) > std::abs(augmented(pivot, i))) pivot = j;
-
-            if (pivot != i) std::swap(augmented.data[i], augmented.data[pivot]);
-
-            double pivotVal = augmented(i, i);
-            for (int j = 0; j < 2 * cols; j++)
-                augmented(i, j) /= pivotVal;
-
-            for (int j = 0; j < rows; j++)
-                if (j != i) {
-                    double factor = augmented(j, i);
-                    for (int k = 0; k < 2 * cols; k++)
-                        augmented(j, k) -= factor * augmented(i, k);
-                }
-        }
-
-        Matrix result(rows, cols);
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++)
-                result(i, j) = augmented(i, j + cols);
-        return result;
-    }
-
-    // matrix trace (sum of diagonal elements)
-    double trace() const {
-        if (rows != cols) throw std::invalid_argument("trace only for square matrices");
-        double sum = 0.0;
-        for (int i = 0; i < rows; i++)
-            sum += data[i][i];
-        return sum;
-    }
-
-    // check if matrix is symmetric
-    bool isSymmetric() const {
-        if (rows != cols) return false;
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++)
-                if (std::abs(data[i][j] - data[j][i]) > 1e-10) return false;
-        return true;
-    }
-
-    // matrix rank using gaussian elimination
-    int rank() const {
-        Matrix temp = *this;
-        int rank = 0;
-
-        for (int col = 0, row = 0; col < cols && row < rows; col++) {
-            int pivot = row;
-            for (int i = row + 1; i < rows; i++)
-                if (std::abs(temp(i, col)) > std::abs(temp(pivot, col))) pivot = i;
-
-            if (std::abs(temp(pivot, col)) < 1e-10) continue;
-
-            if (pivot != row) std::swap(temp.data[row], temp.data[pivot]);
-            rank++;
-
-            for (int i = row + 1; i < rows; i++) {
-                double factor = temp(i, col) / temp(row, col);
-                for (int j = col; j < cols; j++)
-                    temp(i, j) -= factor * temp(row, j);
-            }
-            row++;
-        }
-        return rank;
-    }
-
-    // convert to 1d array for jni
-    std::vector<double> toArray() const {
-        std::vector<double> result;
-        result.reserve(rows * cols);
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++)
-                result.push_back(data[i][j]);
-        return result;
-    }
-
-    /**
-     * Converts the matrix to a C-style 2D array using malloc.
-     * Now with proper memory management through caching.
-     */
-    double** toCArray() const;
-
-    /**
-     * Manually free the C-style array cache if needed
-     * (though destructor will handle this automatically)
-     */
-    void clearCArrayCache() const {
-        freeCArrayCache();
+                r.data[j][i] = data[i][j];
+        return r;
     }
 };
 
-inline int Matrix::getCols() const {
-    return cols;
-}
-
-double** Matrix::toCArray() const {
-    // If we already have a cached C array, free it first
-    freeCArrayCache();
-
-    // Allocate memory for the array of row pointers
-    c_array_cache = (double**)malloc(rows * sizeof(double*));
-    if (c_array_cache == nullptr) {
-        throw std::bad_alloc();
-    }
-
-    for (int i = 0; i < rows; ++i) {
-        // Allocate memory for each row
-        c_array_cache[i] = (double*)malloc(cols * sizeof(double));
-        if (c_array_cache[i] == nullptr) {
-            // Allocation failed, free previously allocated memory before throwing
-            for (int j = 0; j < i; ++j) {
-                free(c_array_cache[j]);
-            }
-            free(c_array_cache);
-            c_array_cache = nullptr;
-            throw std::bad_alloc();
-        }
-        // Copy the data
-        for (int j = 0; j < cols; ++j) {
-            c_array_cache[i][j] = data[i][j];
-        }
-    }
-    return c_array_cache;
-}
-
-// Friend function implementations
-Matrix operator*(double scalar, const Matrix& matrix) {
-    return matrix * scalar;
-}
-
-std::ostream& operator<<(std::ostream& os, const Matrix& matrix) {
-    for (int i = 0; i < matrix.getRows(); i++) {
-        for (int j = 0; j < matrix.getCols(); j++)
-            os << matrix(i, j) << " ";
-        os << std::endl;
-    }
-    return os;
-}
-
-Matrix elementWiseMultiply(const Matrix& a, const Matrix& b) {
-    if (a.getRows() != b.getRows() || a.getCols() != b.getCols()) throw std::invalid_argument("dimensions must match for element-wise multiplication");
-    Matrix result(a.getRows(), a.getCols());
-    for (int i = 0; i < a.getRows(); i++)
-        for (int j = 0; j < a.getCols(); j++)
-            result(i, j) = a(i, j) * b(i, j);
-    return result;
-}
-
-// convert jni array to matrix
-Matrix jArrayToMatrix(JNIEnv* env, jdoubleArray jArray, jint rows, jint cols) {
-    jdouble* elements = env->GetDoubleArrayElements(jArray, NULL);
-    Matrix matrix(rows, cols);
-
+Matrix javaArray(JNIEnv* env, jdoubleArray arr, jint rows, jint cols) {
+    jdouble* e = env->GetDoubleArrayElements(arr, nullptr);
+    Matrix m(rows, cols);
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++)
-            matrix(i, j) = elements[i * cols + j];
-
-    env->ReleaseDoubleArrayElements(jArray, elements, JNI_ABORT);
-    return matrix;
+            m.at(i, j) = e[i * cols + j];
+    env->ReleaseDoubleArrayElements(arr, e, JNI_ABORT);
+    return m;
 }
 
-// convert matrix to jni array
-jdoubleArray matrixToJArray(JNIEnv* env, const Matrix& matrix) {
-    std::vector<double> data = matrix.toArray();
-    jdoubleArray result = env->NewDoubleArray(data.size());
-    env->SetDoubleArrayRegion(result, 0, data.size(), data.data());
-    return result;
+jdoubleArray javaArray(JNIEnv* env, const Matrix& m) {
+    int size = m.r() * m.c();
+    jdoubleArray arr = env->NewDoubleArray(size);
+    jdouble* flat = (jdouble*)malloc(size * sizeof(jdouble));
+    int idx = 0;
+    for (int i = 0; i < m.r(); i++)
+        for (int j = 0; j < m.c(); j++)
+            flat[idx++] = m.at(i, j);
+    env->SetDoubleArrayRegion(arr, 0, size, flat);
+    free(flat);
+    return arr;
 }
 
 extern "C" {
 
-JNIEXPORT jdoubleArray JNICALL Java_core_utils_MatrixOperations_addMatrices(JNIEnv* env, jobject, jdoubleArray matA, jint rowsA, jint colsA, jdoubleArray matB, jint rowsB, jint colsB) {
+JNIEXPORT jdoubleArray JNICALL Java_core_utils_Matrix_addMatrices
+(JNIEnv* env, jobject, jdoubleArray a, jint ra, jint ca, jdoubleArray b, jint rb, jint cb) {
     try {
-        Matrix a = jArrayToMatrix(env, matA, rowsA, colsA);
-        Matrix b = jArrayToMatrix(env, matB, rowsB, colsB);
-        Matrix result = a + b;
-        return matrixToJArray(env, result);
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
+        Matrix A = javaArray(env, a, ra, ca);
+        Matrix B = javaArray(env, b, rb, cb);
+        return javaArray(env, A + B);
+    } catch (const char* err) {
+        cerr << err << endl; cerr.flush();
         return nullptr;
     }
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_core_utils_MatrixOperations_subtractMatrices(JNIEnv* env, jobject, jdoubleArray matA, jint rowsA, jint colsA, jdoubleArray matB, jint rowsB, jint colsB) {
+JNIEXPORT jdoubleArray JNICALL Java_core_utils_Matrix_subtractMatrices
+(JNIEnv* env, jobject, jdoubleArray a, jint ra, jint ca, jdoubleArray b, jint rb, jint cb) {
     try {
-        Matrix a = jArrayToMatrix(env, matA, rowsA, colsA);
-        Matrix b = jArrayToMatrix(env, matB, rowsB, colsB);
-        Matrix result = a - b;
-        return matrixToJArray(env, result);
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
+        Matrix A = javaArray(env, a, ra, ca);
+        Matrix B = javaArray(env, b, rb, cb);
+        return javaArray(env, A - B);
+    } catch (const char* err) {
+        cerr << err << endl; cerr.flush();
         return nullptr;
     }
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_core_utils_MatrixOperations_multiplyMatrices(JNIEnv* env, jobject, jdoubleArray matA, jint rowsA, jint colsA, jdoubleArray matB, jint rowsB, jint colsB) {
+JNIEXPORT jdoubleArray JNICALL Java_core_utils_Matrix_multiplyMatrices
+(JNIEnv* env, jobject, jdoubleArray a, jint ra, jint ca, jdoubleArray b, jint rb, jint cb) {
     try {
-        Matrix a = jArrayToMatrix(env, matA, rowsA, colsA);
-        Matrix b = jArrayToMatrix(env, matB, rowsB, colsB);
-        Matrix result = a * b;
-        return matrixToJArray(env, result);
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
+        Matrix A = javaArray(env, a, ra, ca);
+        Matrix B = javaArray(env, b, rb, cb);
+        return javaArray(env, A * B);
+    } catch (const char* err) {
+        cerr << err << endl; cerr.flush();
         return nullptr;
     }
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_core_utils_MatrixOperations_scalarMultiply(JNIEnv* env, jobject, jdoubleArray matrix, jint rows, jint cols, jdouble scalar) {
+JNIEXPORT jdoubleArray JNICALL Java_core_utils_Matrix_scalarMultiply
+(JNIEnv* env, jobject, jdoubleArray a, jint r, jint c, jdouble s) {
     try {
-        Matrix a = jArrayToMatrix(env, matrix, rows, cols);
-        Matrix result = a * scalar;
-        return matrixToJArray(env, result);
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
+        Matrix A = javaArray(env, a, r, c);
+        return javaArray(env, A * s);
+    } catch (const char* err) {
+        cerr << err << endl; cerr.flush();
         return nullptr;
     }
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_core_utils_MatrixOperations_transpose(JNIEnv* env, jobject, jdoubleArray matrix, jint rows, jint cols) {
+JNIEXPORT jdoubleArray JNICALL Java_core_utils_Matrix_transpose
+(JNIEnv* env, jobject, jdoubleArray a, jint r, jint c) {
     try {
-        Matrix a = jArrayToMatrix(env, matrix, rows, cols);
-        Matrix result = a.transpose();
-        return matrixToJArray(env, result);
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
+        Matrix A = javaArray(env, a, r, c);
+        return javaArray(env, A.transpose());
+    } catch (const char* err) {
+        cerr << err << endl; cerr.flush();
         return nullptr;
-    }
-}
-
-JNIEXPORT jdouble JNICALL Java_core_utils_MatrixOperations_determinant(JNIEnv* env, jobject, jdoubleArray matrix, jint rows, jint cols) {
-    try {
-        Matrix a = jArrayToMatrix(env, matrix, rows, cols);
-        return a.determinant();
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
-        return 0.0;
-    }
-}
-
-JNIEXPORT jdoubleArray JNICALL Java_core_utils_MatrixOperations_inverse(JNIEnv* env, jobject, jdoubleArray matrix, jint rows, jint cols) {
-    try {
-        Matrix a = jArrayToMatrix(env, matrix, rows, cols);
-        Matrix result = a.inverse();
-        return matrixToJArray(env, result);
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
-        return nullptr;
-    }
-}
-
-JNIEXPORT jdouble JNICALL Java_core_utils_MatrixOperations_trace(JNIEnv* env, jobject, jdoubleArray matrix, jint rows, jint cols) {
-    try {
-        Matrix a = jArrayToMatrix(env, matrix, rows, cols);
-        return a.trace();
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
-        return 0.0;
-    }
-}
-
-JNIEXPORT jint JNICALL Java_core_utils_MatrixOperations_rank(JNIEnv* env, jobject, jdoubleArray matrix, jint rows, jint cols) {
-    try {
-        Matrix a = jArrayToMatrix(env, matrix, rows, cols);
-        return a.rank();
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
-        return 0;
-    }
-}
-
-JNIEXPORT jboolean JNICALL Java_core_utils_MatrixOperations_isSymmetric(JNIEnv* env, jobject, jdoubleArray matrix, jint rows, jint cols) {
-    try {
-        Matrix a = jArrayToMatrix(env, matrix, rows, cols);
-        return a.isSymmetric();
-    } catch (const std::exception& e) {
-        jclass exceptionClass = env->FindClass("java/lang/RuntimeException");
-        env->ThrowNew(exceptionClass, e.what());
-        return false;
     }
 }
 
